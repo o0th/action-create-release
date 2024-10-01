@@ -63,7 +63,7 @@ if (file === 'build.zig.zon') {
   replaces.set('{multihash}', multihash)
 }
 
-let body = fs.readFileSync(path.join('.', 'zig-template.md'), 'utf8')
+let body = fs.readFileSync(path.join('.', 'template.md'), 'utf8')
 replaces.forEach((value, key) => body = body.replaceAll(key, value))
 
 await octokit.rest.repos.createRelease({

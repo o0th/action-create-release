@@ -1,9 +1,13 @@
-name: testing 
+name: release 
 
 on:
   push:
     branches:
       - master 
+    paths:
+      - index.js
+      - package.json
+      - package-lock.json
 
 permissions:
   contents: write
@@ -16,10 +20,5 @@ jobs:
       - name: Set up source
         uses: actions/checkout@v4
 
-      - name: Set up zig
-        uses: goto-bus-stop/setup-zig@v2
-        with:
-          version: 0.13.0
-
-      - name: acation-release
+      - name: Release
         uses: ./

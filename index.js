@@ -30,5 +30,5 @@ const sha = core.getInput('sha');
 
 const octokit = github.getOctokit(token)
 const response = await octokit.rest.git.createRef({
-  owner, repo, sha, ref: `ref/tags/v${version}`
+  owner, repo, sha, ref: `refs/tags/v${version}`
 })

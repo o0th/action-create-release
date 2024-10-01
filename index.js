@@ -29,6 +29,18 @@ const [owner, repo] = core.getInput('repository').split('/');
 const sha = core.getInput('sha');
 
 const octokit = github.getOctokit(token)
-const response = await octokit.rest.git.createRef({
+
+await octokit.rest.git.createRef({
   owner, repo, sha, ref: `refs/tags/v${version}`
+}).catch((error) => {
+  core.error(error)
+  process.exit(1)
 })
+
+await octokit.rest.repos.createRelease({
+  owner, repo, tag_name: `v${version}`, name: `${repo} v${version}`
+}).catch((error) => {
+  core.error(error)
+  process.exit(1)
+})
+

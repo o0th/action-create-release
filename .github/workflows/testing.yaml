@@ -1,0 +1,17 @@
+name: testing 
+
+on:
+  push:
+    branches:
+      - master 
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up source
+        uses: actions/checkout@v4
+
+      - name: acation-release
+        uses: ./

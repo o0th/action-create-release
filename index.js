@@ -45,14 +45,21 @@ const content = await getFile(octokit, owner, repo, sha, file)
 const [_, version] = getLine(content, regexes[file])
 
 await octokit.rest.git.createRef({
-  owner, repo, sha, ref: `refs/tags/v${version}`
+  owner,
+  repo,
+  sha,
+  ref: `refs/tags/v${version}`
 }).catch((error) => {
   core.setFailed(error)
   process.exit(1)
 })
 
 await octokit.rest.repos.createRelease({
-  owner, repo, tag_name: `v${version}`, name: `${repo} v${version}`, body
+  owner,
+  repo,
+  tag_name: `v${version}`,
+  name: `${repo} v${version}`,
+  generate_release_notes: true
 }).catch((error) => {
   core.setFailed(error)
   process.exit(1)

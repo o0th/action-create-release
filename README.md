@@ -24,5 +24,5 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: o0th/action-create-release@v0.0.4
+      - uses: o0th/action-create-release@
 ```

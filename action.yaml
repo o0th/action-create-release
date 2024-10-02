@@ -1,15 +1,15 @@
-name: 'Release'
+name: action-release
+description: create tags and release
+
+branding:
+  icon: cast
+  color: red
 
 inputs:
+
   token:
     required: false
     default: ${{ github.token }}
-  repository:
-    required: false
-    default: ${{ github.repository }}
-  sha:
-    required: false
-    default: ${{ github.sha }}
 
 runs:
   using: 'node20'

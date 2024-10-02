@@ -1,75 +1,67 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import util from 'node:util'
-import child_process from 'node:child_process'
-
 import core from '@actions/core'
 import github from '@actions/github'
 
-const exec = util.promisify(child_process.exec)
+const token = core.getInput('token');
+const octokit = github.getOctokit(token)
+
+const owner = github.context.repo.owner
+const repo = github.context.repo.repo
+const sha = github.context.sha
 
 const regexes = {
   'package.json': /"version": "(?<version>\d.\d.\d)"/,
   'build.zig.zon': /.version = "(?<version>\d.\d.\d)"/
 }
 
-const files = fs.readdirSync(path.join('.'));
-const file = files.find((file) => regexes.hasOwnProperty(file))
+const getFiles = async (octokit, owner, repo, ref) => {
+  const request = await octokit.rest.repos.getContent({
+    owner, repo, ref
+  })
+
+  return request.data.map((item) => item.name)
+}
+
+const getFile = async (octokit, owner, repo, ref, path) => {
+  const request = await octokit.rest.repos.getContent({
+    owner, repo, ref, path
+  })
+
+  return atob(request.data.content)
+}
+
+const matchFile = (files, regexes) => {
+  return files.find((file) => regexes.hasOwnProperty(file))
+}
+
+const files = await getFiles(octokit, owner, repo, sha)
+const file = matchFile(files, regexes)
 
 if (!file) {
-  core.error(`Couldn't find any version file'`)
+  core.setFailed(`Couldn't find any supported file'`)
   process.exit(1)
 }
 
-const content = fs.readFileSync(path.join('.', file), 'utf8')
-const matches = content.match(regexes[file])
-
-if (!matches.groups.version) {
-  core.error(`Couldn't find version in ${file}`)
-}
-
-const version = matches.groups.version
-const token = core.getInput('token');
-const [owner, repo] = core.getInput('repository').split('/');
-const sha = core.getInput('sha');
-
-const octokit = github.getOctokit(token)
+const content = await getFile(octokit, owner, repo, sha, file)
+const [_, version] = getLine(content, regexes[file])
 
 await octokit.rest.git.createRef({
-  owner, repo, sha, ref: `refs/tags/v${version}`
+  owner,
+  repo,
+  sha,
+  ref: `refs/tags/v${version}`
 }).catch((error) => {
-  core.error(error)
+  core.setFailed(error)
   process.exit(1)
 })
 
-const replaces = new Map();
-replaces.set('{version}', version)
-replaces.set('{owner}', owner)
-replaces.set('{repo}', repo)
-replaces.set('{sha}', sha)
-
-if (file === 'build.zig.zon') {
-  const { stdout, stderr } = await exec(
-    `zig fetch https://github.com` +
-    `/${owner}/${repo}/archive/refs/tags/v${version}.tar.gz`
-  )
-
-  if (stderr) {
-    core.error(error)
-    process.exit(1)
-  }
-
-  const multihash = stdout.replace(/(\r\n|\n|\r)/gm, '')
-  replaces.set('{multihash}', multihash)
-}
-
-let body = fs.readFileSync(path.join('.', 'template.md'), 'utf8')
-replaces.forEach((value, key) => body = body.replaceAll(key, value))
-
 await octokit.rest.repos.createRelease({
-  owner, repo, tag_name: `v${version}`, name: `${repo} v${version}`, body
+  owner,
+  repo,
+  tag_name: `v${version}`,
+  name: `${repo} v${version}`,
+  generate_release_notes: true
 }).catch((error) => {
-  core.error(error)
+  core.setFailed(error)
   process.exit(1)
 })
 

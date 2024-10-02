@@ -2,8 +2,8 @@
 o0th/action-create-release
 </h2>
 
-This github action check in the current pr if `version` field in `package.json`
-or `build.zig.zon` was updated and increased according to sem versioning.
+This github action extract the `version` field in `package.json`
+or `build.zig.zon` and create a tag and a release
 
 ### Usage
 
@@ -24,5 +24,5 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: o0th/action-create-release@v0.0.3
+      - uses: o0th/action-create-release@v0.0.4
 ```

@@ -1,6 +1,7 @@
 name: release 
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - master 
@@ -22,5 +23,20 @@ jobs:
       - name: Set up source
         uses: actions/checkout@v4
 
-      - name: Release
+      - id: release
         uses: ./
+
+      - uses: o0th/action-mustache-me@v0.1.0
+        with:
+          input-file: README.template.md
+          output-file: README.md
+          vars: |
+            {{version}} = ${{ steps.release.outputs.version }}
+
+      - run: |
+          git diff
+          git checkout master
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "docs: render readme"
+          git push origin master

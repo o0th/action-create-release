@@ -11,6 +11,11 @@ inputs:
     required: false
     default: ${{ github.token }}
 
+outputs:
+
+  version:
+    description: version string
+
 runs:
   using: 'node20'
   main: 'index.js'

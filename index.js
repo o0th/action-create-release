@@ -4,8 +4,7 @@ import github from '@actions/github'
 const token = core.getInput('token');
 const octokit = github.getOctokit(token)
 
-const owner = github.context.repo.owner
-const repo = github.context.repo.repo
+const owner = github.context.repo.owner const repo = github.context.repo.repo
 const sha = github.context.sha
 
 const regexes = {
@@ -74,4 +73,5 @@ await octokit.rest.repos.createRelease({
   process.exit(1)
 })
 
+core.setOutput('version', `v${version}`)
 process.exit(0)

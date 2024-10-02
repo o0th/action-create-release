@@ -1,5 +1,5 @@
-name: action-release
-description: create tags and release
+name: action-create-release
+description: create tag and release
 
 branding:
   icon: cast

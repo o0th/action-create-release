@@ -33,6 +33,15 @@ const matchFile = (files, regexes) => {
   return files.find((file) => regexes.hasOwnProperty(file))
 }
 
+const getLine = (content, regex) => {
+  return content.split('\n').reduce((accumulator, value, index) => {
+    const match = value.match(regex)
+    return match?.groups?.version
+      ? [index + 1, match.groups.version]
+      : accumulator
+  }, [])
+}
+
 const files = await getFiles(octokit, owner, repo, sha)
 const file = matchFile(files, regexes)
 

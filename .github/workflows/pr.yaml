@@ -16,4 +16,4 @@ jobs:
     steps:
 
       - name: Check-version
-        uses: o0th/action-check-version@v0.0.6
+        uses: o0th/action-check-version@v1.0.0
